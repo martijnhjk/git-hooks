@@ -1,0 +1,57 @@
+#!/bin/bash
+
+latest_commit_id() {
+  git rev-parse $1
+}
+
+contains_remote_master_commit_id() {
+  git fetch origin master
+  local current_branch_name="$(git rev-parse --abbrev-ref HEAD)"
+  local origin_commit_id="$( latest_commit_id origin/master )"
+  # request list of branches that contain the commit and look for branch in the list
+  if [ -z "$(git branch --contains $origin_commit_id | grep -w $current_branch_name)" ]; then
+    false
+  else
+    true
+  fi
+}
+
+repo_root_dir() {
+  git rev-parse --show-toplevel
+}
+
+run_tests() {
+  cd "$( repo_root_dir )"
+  // put your test command(s) here!
+}
+
+# run tests
+if run_tests; then
+  echo "Your code compiles, carry on..."
+else
+  exit 1
+fi
+
+# offer to update the branch if origin/master is ahead
+if contains_remote_master_commit_id; then
+  echo "You are up to date with origin/master!"
+  exit 0
+else
+  echo "Heads up, new code was merged to master!"
+  echo "Commit ID $( latest_commit_id origin/master ) is missing in your local branch..."
+  read -p "Would you like to update? " -n 1 -r < /dev/tty
+  echo
+  if [[ $REPLY =~ ^[Yy]$ ]]; then
+    if git merge origin/master; then
+      echo "SUCCESSFULLY UPDATED WITH MASTER, PLEASE PUSH AGAIN!!!"
+      exit 1
+    else
+      echo "go see the doctorrrr"
+      exit 1
+    fi
+  else
+      echo "Not updating with master, pushing to remote anyway..."
+      exit 0
+  fi
+fi
+
