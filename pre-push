@@ -8,6 +8,7 @@ contains_remote_master_commit_id() {
   git fetch origin master
   local current_branch_name="$(git rev-parse --abbrev-ref HEAD)"
   local origin_commit_id="$( latest_commit_id origin/master )"
+  
   # request list of branches that contain the commit and look for branch in the list
   if [ -z "$(git branch --contains $origin_commit_id | grep -w $current_branch_name)" ]; then
     false
