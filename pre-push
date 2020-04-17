@@ -23,7 +23,7 @@ repo_root_dir() {
 
 run_tests() {
   cd "$( repo_root_dir )"
-  // put your test command(s) here!
+  # put your test command(s) here!
 }
 
 # run tests
